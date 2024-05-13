@@ -5,19 +5,17 @@ app = Flask(__name__)
 app.secret_key = "panda"
 
 # Configure MySQL connection
-app.config["MYSQL_HOST"] = "localhost"
-app.config["MYSQL_USER"] = "root"
-app.config["MYSQL_PASSWORD"] = "Aneesh123"
-app.config["MYSQL_DB"] = "the_app"
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'Aneesh123'
+app.config['MYSQL_DB'] = 'the_app'
 
 # Initialize MySQL
 mysql = MySQL(app)
 
-
 @app.route("/")
 def home():
-    return render_template("home.html")
-
+    return render_template("home.html")  
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -37,17 +35,13 @@ def register():
             return "Username or email is already registered."
 
         # If the username and email are not already registered, insert the new user
-        cur.execute(
-            "INSERT INTO users (username, email, password) VALUES (%s, %s, %s)",
-            (username, email, password),
-        )
+        cur.execute("INSERT INTO users (username, email, password) VALUES (%s, %s, %s)", (username, email, password))
         mysql.connection.commit()
         cur.close()
 
         return "Form Submitted"
 
-    return render_template("register.html")
-
+    return render_template("register.html")  
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -61,13 +55,12 @@ def login():
         cur.close()
 
         if tocheck and password == tocheck[0]:
-            session["username"] = username
-            return redirect(url_for("home"))
+            session["username"] = username  
+            return redirect(url_for("home")) 
         else:
             return "Incorrect password or username"
 
-    return render_template("login.html")
-
+    return render_template("login.html")  
 
 @app.route("/dashboard")
 def dashboard():
@@ -75,14 +68,12 @@ def dashboard():
         username = session["username"]
         return render_template("dashboard.html", username=username)
     else:
-        return redirect(url_for("login"))
-
+        return redirect(url_for("login"))  
 
 @app.route("/logout")
 def logout():
     session.pop("username", None)
-    return redirect(url_for("login"))
-
+    return redirect(url_for("login"))  
 
 @app.route("/slots")
 def select_slot():
@@ -103,7 +94,7 @@ def submit_slots():
     username = session.get("username")
 
     cur = mysql.connection.cursor()
-
+    
     for slot_id in selected_slots:
         cur.execute(
             "SELECT * FROM SelectedSlots s JOIN FacultySlots f ON s.slot_id = f.id WHERE f.id = %s AND s.username = %s",
@@ -153,7 +144,6 @@ def show_slots():
     return render_template(
         "selected_slots.html", selected_slots=selected_slots, username=username
     )
-
 
 if __name__ == "__main__":
     app.run(debug=True)
